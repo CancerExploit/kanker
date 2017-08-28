@@ -1,19 +1,713 @@
+<script>
 
-<html>
-  <title>
-    First
-  </title>
-  
-  <body>
-    <h1>This is my first github page</h1>
-  </body>
-  
-  <style>
-    body {
-      background-color:green;
-      color:#fff;
-      text-align:centr;
+<script> bytes CancerExploit
+
+(function() {
+  var $, Image, Modemizr, Pause, Processor, log, spacep, stringp, time,
+    slice = [].slice,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  stringp = function(s) {
+    return typeof s === 'string' || s instanceof String;
+  };
+
+  spacep = function(s) {
+    return s === " " || s === "\t" || s === "\n" || s === "\r" || s === " ";
+  };
+
+  log = function() {
+    var args;
+    args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+  };
+
+  time = function() {
+    return (new Date()).getTime();
+  };
+
+  Processor = (function() {
+    function Processor(master1, parentNode) {
+      this.master = master1;
+      this.parentNode = parentNode;
     }
-    <style>
-    
-    </html>
+
+    Processor.prototype.done = true;
+
+    return Processor;
+
+  })();
+
+  Image = (function(superClass) {
+    extend(Image, superClass);
+
+    Image.prototype.pos = 0;
+
+    Image.prototype.done = false;
+
+    function Image(master, image) {
+      this.image = image;
+      Image.__super__.constructor.call(this, master, this.image);
+      this.last = time();
+      this.update();
+      this.image.style.overflow = "hidden";
+    }
+
+    Image.prototype.update = function() {
+      var fh, fw, ph, pw;
+      fh = Math.floor(this.pos / this.image.width);
+      ph = fh + 1;
+      fw = this.image.width;
+      pw = this.pos % this.image.width;
+      return this.image.style.webkitClipPath = this.image.style.clipPath = "polygon(0px 0px, " + fw + "px 0px, " + fw + "px " + fh + "px, " + pw + "px " + fh + "px, " + pw + "px " + ph + "px, 0px " + ph + "px)";
+    };
+
+
+
+    Image.prototype.pixelsPending = function() {
+      var bytes;
+      bytes = (time() - this.last) / 1000.0 * this.master.bps * this.master.imageSpeedup / 10;
+      return bytes;
+    };
+
+    Image.prototype.tick = function() {
+      var pixels;
+      if (this.pos >= this.image.height * this.image.width) {
+        this.image.style.webkitClipPath = this.image.style.clipPath = "";
+        return this.done = true;
+      }
+      pixels = this.pixelsPending();
+      if (pixels > 0) {
+        this.last = time();
+        this.pos += pixels;
+        return this.update();
+      }
+    };
+
+    return Image;
+
+  })(Processor);
+
+  Pause = (function(superClass) {
+    extend(Pause, superClass);
+
+    Pause.prototype.ticks = 0;
+
+    function Pause(master, parent, chars1, secs1) {
+      this.chars = chars1;
+      this.secs = secs1;
+      this.start = time();
+      this.done = this.donep();
+      Pause.__super__.constructor.call(this, master, parent);
+    }
+
+    Pause.prototype.donep = function() {
+      var pending;
+      log("donep: ticks " + this.ticks + " chars " + this.chars + " elapsed " + (time() - this.start) + " secs " + this.secs);
+      pending = ((this.chars != null) && this.ticks < this.chars) || ((this.secs != null) && (time() - this.start) < (1000.0 * this.secs));
+      log("pending: " + pending);
+      return !pending;
+    };
+
+    Pause.prototype.tick = function() {
+      this.ticks++;
+      return this.done = this.donep();
+    };
+
+    return Pause;
+
+  })(Processor);
+
+  Modemizr = (function() {
+
+    /*
+     * Default parameters
+     */
+    Modemizr.prototype.bps = 300;
+
+    Modemizr.prototype.cursor = false;
+
+    Modemizr.prototype.blink = false;
+
+    Modemizr.prototype.imageSpeedup = 100;
+
+    Modemizr.prototype.blinker = null;
+
+    Modemizr.prototype.timer = null;
+
+
+    /*
+     * Output is a stack of output elements. It starts with the initial
+     * `output` container given at init.
+     */
+
+    Modemizr.prototype.output = [];
+
+    Modemizr.prototype.root = null;
+
+    Modemizr.prototype.space = false;
+
+    Modemizr.prototype.pre = false;
+
+
+
+
+    Modemizr.prototype.input = [];
+
+
+  
+
+    function Modemizr(output, input, options) {
+      var child, nodes;
+      if (options != null) {
+        if (options.bps != null) {
+          this.bps = options.bps;
+        }
+        if (options.cursor != null) {
+          this.cursor = options.cursor;
+        }
+        if (options.blink != null) {
+          this.blink = options.blink;
+        }
+        if (options.imageSpeedup != null) {
+          this.imageSpeedup = options.imageSpeedup;
+        }
+      }
+      if (output == null) {
+        return;
+      }
+      if (input == null) {
+        input = output;
+      }
+      this.output = [output];
+      this.root = output;
+      if (!((options != null) && (options.show != null)) || options.show) {
+        if (this.root.style.display === "none") {
+          this.root.style.display = "block";
+        }
+      }
+
+      /*
+       * If input is the same as output, grab node content first and then
+       * clear it.
+       */
+      if (output === input) {
+        nodes = Array.prototype.slice.call(input.childNodes);
+        while ((child = input.firstChild) != null) {
+          input.removeChild(child);
+        }
+        input = nodes;
+      }
+
+      /*
+       * If we are passed a plain input node grab its children only.
+       */
+      if (!(input instanceof Array) && (input.childNodes != null)) {
+        input = input.childNodes;
+      }
+
+      /*
+       * ... and remember to use slice to ensure it is a true array, not
+       * an object of childNodes
+       */
+      this.input = [Array.prototype.slice.call(input)];
+      log("output", this.output, "input", this.input);
+    }
+
+    Modemizr.prototype.restart = function() {
+      this.stop();
+      return this.start();
+    };
+
+    Modemizr.prototype.start = function() {
+      var blink_interval, interval;
+      if (this.timer != null) {
+        return;
+      }
+      interval = 1000.0 / (this.bps / 10.0);
+      this.last = (new Date()).getTime();
+      this.timer = setInterval(((function(_this) {
+        return function() {
+          return _this.tick();
+        };
+      })(this)), interval);
+      if (this.blink) {
+        blink_interval = parseFloat(this.blink === this.blink) ? this.blink : 500.0;
+        this.blinker = setInterval(((function(_this) {
+          return function() {
+            return _this.blinks();
+          };
+        })(this)), blink_interval);
+      }
+      return this;
+    };
+
+    Modemizr.prototype.stop = function() {
+      if (this.timer != null) {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
+      if (this.blinker != null) {
+        clearInterval(this.blinker);
+        this.blinker = null;
+        this.root.classList.remove('blink');
+      }
+      return this;
+    };
+
+    Modemizr.prototype.blinks = function() {
+      return this.root.classList.toggle('blink');
+    };
+
+
+    /*
+     * Count the number of characters that shold be output to keep the
+     * BPS value correct since `last` when now is `now`.
+     */
+
+    Modemizr.prototype.countCharsNeeded = function(last, now) {
+      var chars, elapsed;
+      elapsed = now - last;
+      chars = Math.round(elapsed / (1000.0 / (this.bps / 10.0)));
+      return chars;
+    };
+
+    Modemizr.prototype.cursorClass = function() {
+      return (stringp(this.cursor)) && this.cursor || "cursor";
+    };
+
+    Modemizr.prototype.tick = function() {
+      var chars, now, results;
+      if (this.input.length === 0) {
+        this.stop();
+        return;
+      }
+      now = (new Date()).getTime();
+      chars = this.countCharsNeeded(this.last, now);
+      if (chars > 0) {
+        this.last = now;
+        results = [];
+        while (chars-- > 0) {
+          results.push(this.step());
+        }
+        return results;
+      }
+    };
+
+    Modemizr.prototype.pop_both = function() {
+      this.pop_output();
+      return this.pop_input();
+    };
+
+    Modemizr.prototype.pop_input = function() {
+      return this.input.pop();
+    };
+
+    Modemizr.prototype.pop_output = function() {
+      if (this.cursor) {
+        this.pop_cursor();
+      }
+      return this.output.pop();
+    };
+
+    Modemizr.prototype.current_output = function() {
+      return this.output[this.output.length - 1];
+    };
+
+
+    /*
+     * Remove cursor from the topmost output element.
+     */
+
+    Modemizr.prototype.pop_cursor = function() {
+      var cursor, cursors, output, results;
+      output = this.current_output();
+      if (output.getElementsByClassName != null) {
+        cursors = output.getElementsByClassName(this.cursorClass());
+        results = [];
+        while (cursors.length > 0) {
+          cursor = cursors[0];
+          results.push(cursor.remove());
+        }
+        return results;
+      }
+    };
+
+
+    /*
+     * If the topmost element is a text node, add cursor **after** it (in
+     * its parent child node list). For any other element type we don't
+     * do anything as we are guaranteed to get a text node eventually
+     * here.
+     */
+
+    Modemizr.prototype.push_cursor = function() {
+      var cursor, output;
+      output = this.current_output();
+      if (((output.nodeType != null) && output.nodeType === 3) || (output instanceof Processor)) {
+        cursor = document.createElement("span");
+        cursor.className = this.cursorClass();
+        return output.parentNode.appendChild(cursor);
+      }
+    };
+
+    Modemizr.prototype.push_both = function(node, content) {
+      if (this.cursor) {
+        this.pop_cursor();
+      }
+      this.output[this.output.length - 1].appendChild(node);
+      this.output.push(node);
+      this.input.push(content);
+      if (this.cursor) {
+        return this.push_cursor();
+      }
+    };
+
+    Modemizr.prototype.push_output = function(node) {
+      if (this.cursor) {
+        this.pop_cursor();
+      }
+      this.output.push(node);
+      if (this.cursor) {
+        return this.push_cursor();
+      }
+    };
+
+
+    /*
+     * Remove the current head element of the top input. Remember, input
+     * is a stack of arrays.
+     */
+
+    Modemizr.prototype.drop_input = function() {
+      return this.input[this.input.length - 1].shift();
+    };
+
+
+    /*
+     * Produce output of "one character" or its equivalent.
+     */
+
+    Modemizr.prototype.step = function() {
+      var bps, chars, current, e, img, input, node, output, pause, ref, secs;
+      if (this.input.length === 0 || this.output.length === 0) {
+        while (this.output.length) {
+          this.pop_output();
+        }
+        this.stop();
+        return;
+      }
+      output = this.output[this.output.length - 1];
+      input = this.input[this.input.length - 1];
+      if (output instanceof Processor) {
+        log("processing");
+        output.tick();
+        if (!output.done) {
+          return;
+        }
+        this.pop_output();
+        return this.step();
+      }
+      if (input.length === 0) {
+        this.pop_both();
+        return this.step();
+      }
+      current = input[0];
+      log("current", current);
+
+      /*
+       * If it is a plain string, easy -- pick one character and append
+       * to output (it will always be a Text element at this point).
+       */
+      if (stringp(current)) {
+        if (current.length === 0) {
+          this.drop_input();
+          return this.step();
+        }
+        log("plain string", current);
+        if (!this.pre && spacep(current[0])) {
+          if (this.space) {
+            input[0] = current.slice(1);
+            return this.step();
+          }
+        }
+        this.space = spacep(current[0]);
+        output.textContent += current[0];
+        input[0] = current.slice(1);
+        return;
+      }
+      log("not string");
+
+      /*
+       * All other types get dropped from the input and replaced with
+       * something else (a new element on the stack or ignored.)
+       */
+      this.drop_input();
+
+      /*
+       * If it is Text node, add an empty text node to output and push
+       * its text value to input. This is because we should only append
+       * characters to text nodes -- without this styles would pop out of
+       * existence at the end of an element.
+       */
+      if (current.nodeType === 3) {
+        log("string node");
+        node = current.cloneNode();
+        node.textContent = "";
+        this.push_both(node, [current.textContent]);
+        this.pre = indexOf.call((function() {
+          var i, len, ref, results;
+          ref = this.output;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            e = ref[i];
+            results.push((e != null) && e.tagName);
+          }
+          return results;
+        }).call(this), 'PRE') >= 0;
+        return this.step();
+      }
+      if (current.nodeType === 8) {
+        log("comment node");
+        return this.step();
+      }
+
+      /*
+       * If it is a formatting style element then recurse into it.
+       */
+      if ((bps = current.getAttribute('data-bps')) != null) {
+        this.bps = parseFloat(bps);
+        this.restart();
+      }
+      if ((ref = current.tagName) === 'B' || ref === 'I' || ref === 'TT' || ref === 'EMPH' || ref === 'SPAN' || ref === 'DIV' || ref === 'P' || ref === 'PRE' || ref === 'A' || ref === 'IMG' || ref === 'BR' || ref === 'H1' || ref === 'H2' || ref === 'H3' || ref === 'H4' || ref === 'H5' || ref === 'DL' || ref === 'DT' || ref === 'DD' || ref === 'OT' || ref === 'OL' || ref === 'LI' || ref === 'UL') {
+        log("formatting node");
+        node = current.cloneNode();
+        this.push_both(node, Array.prototype.slice.call(current.childNodes));
+        if (current.tagName === 'IMG') {
+          img = new Image(this, node);
+          this.push_output(img);
+        }
+        chars = node.getAttribute('data-pause-chars');
+        secs = node.getAttribute('data-pause-secs');
+        if ((chars != null) || (secs != null)) {
+          pause = new Pause(this, node, (chars != null) && parseFloat(chars) || null, (secs != null) && parseFloat(secs) || null);
+          this.push_output(pause);
+        }
+        return this.step();
+      }
+      console.log("Unrecognized node type " + current.nodeType + " with tag " + current.tagName + ", skipping.");
+      return this.step();
+    };
+
+    return Modemizr;
+
+  })();
+
+
+  /*
+   * Global initializer
+   */
+
+  window.modemizr = function(output, input, options) {
+    return (new Modemizr(output, input, options)).start();
+  };
+
+
+  /*
+   * If jQuery is available, add a jQuery plugin.
+   */
+
+  if (($ = window.jQuery) != null) {
+    $.fn.modemizr = function(options) {
+      return this.each(function() {
+        return (new Modemizr(this, this, options)).start();
+      });
+    };
+  }
+
+  window.blink = function(elt) {
+    var tick;
+    tick = (function(_this) {
+      return function() {
+        return elt.classList.toggle("blink");
+      };
+    })(this);
+    return setInterval(tick, 500.0);
+  };
+
+}).call(this);
+</script>
+<style>
+.fullscreen-bg {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: -100;
+}
+
+.fullscreen-bg__video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-aspect-ratio: 16/9) {
+  .fullscreen-bg__video {
+    height: 300%;
+    top: -100%;
+  }
+}
+
+@media (max-aspect-ratio: 16/9) {
+  .fullscreen-bg__video {
+    width: 300%;
+    left: -100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .fullscreen-bg {
+    background: url('../img/videoframe.jpg') center center / cover no-repeat;
+  }
+
+  .fullscreen-bg__video {
+    display: none;
+  }
+}
+body {
+ background-repeat:no-repeat;
+    background-position:center;
+    background-color: black;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -ms-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    font-family: monospace;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 1px 1px 0px rgba(8,230,255,100), -1px -1px 0px rgba(255,0,0,100);
+}
+pre {
+    text-align: center;
+    font-family: monospace;
+}
+#center {               
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);    
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+a:hover {
+    color: #fdffaf;
+}
+
+.href, body, html {
+    cursor: url(), pointer;
+}
+.gay {
+   color: red;
+}
+.gay2 {
+   color: red;
+   font-size: 18px;
+}
+.gay3 {
+   color: white;
+   font-size: 27px;
+   text-decoration: underline;
+}
+.gay4 {
+   color: white;
+   font-size: 18px;
+   margin-top: -26px;
+}
+</style>
+<html>
+<div class="fullscreen-bg">
+    <video loop autoplay poster="video/mp4" class="fullscreen-bg__video">
+        <source src="rae.mp4" type="video/mp4">
+    </video>
+</div>
+    <head>
+      <title>$:/~#</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script>
+$(document).on({
+    "contextmenu": function(e) {
+        console.log("ctx menu button:", e.which); 
+        e.preventDefault();
+    },
+    "mousedown": function(e) { 
+        console.log("normal mouse down:", e.which); 
+    },
+    "mouseup": function(e) { 
+        console.log("normal mouse up:", e.which); 
+    }
+});
+$(document).keydown(function(e){
+    if(e.which === 123){
+       return false;
+    }
+});
+      </script>
+            <style type="text/css">body { cursor: url('data:image/x-icon;base64,AAACAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAAAAAAAAAAEAAAAAAAAACfIbgAAAAAANdz6wDJodEA1K/bAP///wC9jccAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERERERERERERERERERERERERERERERERERERERERERERERFVVVURERERERERERERERFVVVVVVRERERERERERERERVVVVVVUREREREREREREREVVVVVVVERERERERERERERFVVVVVVREREREREREREREVVVVVUFVRERERERERERERFVVVVQIFURERERERERERERVVVVVQVVEREREREREREREVVVVVVVVRERERERERERERFVVVVVVVURERERERERERERVVVVVVVVEREREREREREREVVVUFVVVRERERERERERERVVVQIFVVVREREREREREREVVVUCBVVVURERERERERERFVVVUFVVVVERERERERERERVVVVVVVVVREREREREREREVVVVVVVVVURERERERERERFVVVVVVVBVERERERERERERVVERERECBRERERERERERFREVVVVVAgFRERERERERERFVUFVVVQIFEREREREREREVVQIFVQUCBVERERERERERFVUCARABAgVRERERERERERURAgACIAIBURERERERERERAjZiImYyBRERERERERERFVBEJmIkIFVRERERERERERVVVQQwAAVVURERERERERERVVVVRVVVVREREREREREREREVVVVVURERERERERERERERERERERERERERERERERH//////A////AD///gAf//4AH//+AB///gAf//wAD//8AA///AAP//wAD//8AA///AAP//wAD//4AAf/+AAH//gAB//4AAf/+AAH//gAB//4AAf/8AAD//AAA//wAAP/8AAD//AAA//wAAP/8AAD//AAA//4AAf//AAP//+Af//w=='), auto; }</style>
+    </head>
+<div id="center" >
+<code><div align="center" id="dg-modem">
+<div class="gay">
+
+<p data-bps="2696">
+<pre>
+  $$\ $$\    $$$$$$\                                                    $$$$$$$$\                     $$\           $$\   $$\     
+  $$ \$$ \  $$  __$$\                                                   $$  _____|                    $$ |          \__|  $$ |    
+$$$$$$$$$$\ $$ /  \__| $$$$$$\  $$$$$$$\   $$$$$$$\  $$$$$$\   $$$$$$\  $$ |      $$\   $$\  $$$$$$\  $$ | $$$$$$\  $$\ $$$$$$\   
+\_$$  $$   |$$ |       \____$$\ $$  __$$\ $$  _____|$$  __$$\ $$  __$$\ $$$$$\    \$$\ $$  |$$  __$$\ $$ |$$  __$$\ $$ |\_$$  _|  
+$$$$$$$$$$\ $$ |       $$$$$$$ |$$ |  $$ |$$ /      $$$$$$$$ |$$ |  \__|$$  __|    \$$$$  / $$ /  $$ |$$ |$$ /  $$ |$$ |  $$ |    
+\_$$  $$  _|$$ |  $$\ $$  __$$ |$$ |  $$ |$$ |      $$   ____|$$ |      $$ |       $$  $$<  $$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$\ 
+  $$ |$$ |  \$$$$$$  |\$$$$$$$ |$$ |  $$ |\$$$$$$$\ \$$$$$$$\ $$ |      $$$$$$$$\ $$  /\$$\ $$$$$$$  |$$ |\$$$$$$  |$$ |  \$$$$  |
+  \__|\__|   \______/  \_______|\__|  \__| \_______| \_______|\__|      \________|\__/  \__|$$  ____/ \__| \______/ \__|   \____/ 
+                                                                                            $$ |                                  
+                                                                                            $$ |                                  
+                                                                                            \__|                                  
+<div class="gay2">
+ "Security Is cancerous, get used to it"
+<div class="Gay3">
+Member$
+</div>
+<div class="Gay4">
+<a href="https://twitter.com/CancerExploit">~c# | ces</a>
+
+<a href="https://twitter.com/CancerExploit">aw$~ | awkos</a>
+
+             
+</pre>
+<script>
+  window.addEventListener("load", function() {
+  modemizr(document.getElementById("dg-modem"), null, {cursor: true, blink: true}); });
+</script>
+        </div>
+    </body>
+</html>
+</script>
+</p></div></a></code>
+<center><a href="https://twitter.com/CancerExploit" class="twitter-follow-button" data-show-count="false">Follow @CancerExploit</a><script async src="//platform.twitter.com/widgets.js" charset="utf-
+8"></script>
